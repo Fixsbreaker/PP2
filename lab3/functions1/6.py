@@ -1,5 +1,5 @@
 def reverse(sentence):
-    return " ".join(sentence.split()[::-1])
+    return sentence[::-1]
 
-sentence = "Hello world"
+sentence = input()
 print(reverse(sentence))
