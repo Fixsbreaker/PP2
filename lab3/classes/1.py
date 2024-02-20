@@ -9,3 +9,4 @@ class SomeClass:
 cl = SomeClass()
 cl.getString()
 cl.printString()
+
