@@ -7,4 +7,4 @@ result = re.findall(pattern, text)
 result2 = []
 for i in result:
     result2.append(i[0].lower() + i[1:])
-print('_'.join(result2))
+print(''.join(result2))
