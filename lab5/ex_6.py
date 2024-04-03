@@ -7,4 +7,3 @@ text = input()
 #     lines = file_in.readlines()
 # for line in lines:
 print(re.sub(pattern, repl, text))
-

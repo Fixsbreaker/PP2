@@ -31,7 +31,7 @@ screen.blit(text4, (10, 200))
 pygame.display.update()
 songs = []
 ind = 0
-directory = r"file_name"
+directory = r"/Users/alnurkunbolov/PP2_id/PP2/lab7/sound"
 
 for filename in os.listdir(directory):
     f = os.path.join(directory, filename)
