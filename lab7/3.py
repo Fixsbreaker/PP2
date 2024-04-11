@@ -15,12 +15,12 @@ fps = 30
 running = True
 while running:
     screen.fill((255, 255, 255))
-    for event in pygame.event.get():
+    for event in pygame.event.get():  # обработка событий
         if event.type == pygame.QUIT:
             running = False
 
-    pressed = pygame.key.get_pressed()
-    if y - radius > 0:
+    pressed = pygame.key.get_pressed()  # Получение состояния всех клавиш
+    if y - radius > 0:  # обработки движения игрового объекта  на экране
         if pressed[pygame.K_w] or pressed[pygame.K_UP]:
             if y - radius == 0:
                 pass
@@ -48,6 +48,6 @@ while running:
         running = False
 
     pygame.draw.circle(screen, (255, 0, 0), (x, y), radius)
-    pygame.display.flip()
+    pygame.display.flip()  # отображения изменений, которые были сделаны в буфере кадра, на самом экране
 
     clock.tick(fps)

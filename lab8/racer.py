@@ -80,7 +80,7 @@ class Player(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
     def update(self):
-        pressed = pygame.key.get_pressed()
+        pressed = pygame.key.get_pressed() # текущее состояние всех клавиш 
         if pressed[pygame.K_LEFT] and self.rect.x - self.speed >= 0:
             self.rect.move_ip(-self.speed, 0)
         elif pressed[pygame.K_RIGHT] and self.rect.x + self.speed + self.rect.width <= WIDTH:

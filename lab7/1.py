@@ -55,7 +55,7 @@ while running:
     screen.blit(clock_img, (0, 0))
     screen.blit(image_for_sec, rect_sec)
     screen.blit(image_for_min, rect_min)
-    angle_for_sec = now.second * 6
+    angle_for_sec = now.second * 6  # если в обратную сторону то отними 360 - от написанного
     angle_for_min = now.minute * 6
 
     pygame.display.update()

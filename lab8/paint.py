@@ -28,13 +28,13 @@ def drawrectangle(screen, x, y):
 isPressed = False
 running = True
 while running:
-    (x, y) = pygame.mouse.get_pos()
+    (x, y) = pygame.mouse.get_pos()  # кортеж с текущими координатами курсора мыши
     sample_text = 'Red - r, ' + 'Blue - b, ' + 'Green - g, ' + 'Black - l, ' + 'Eraser - e'
     if current_shape == "circle":
         sample_text += ", Circle - k"
     elif current_shape == "rectangle":
         sample_text += ", Rectangle - t"
-    text = font.render(sample_text, True, (0, 0, 0))
+    text = font.render(sample_text, True, (0, 0, 0))  # создает изображение текста, который будет отображаться на экране
     screen.blit(text, (0, 0))
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_r]:
