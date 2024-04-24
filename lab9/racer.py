@@ -44,7 +44,7 @@ class Coin(pygame.sprite.Sprite):
 class CoinOne(Coin):
     def __init__(self, photo):
         super().__init__(photo)
-        self.coin_add = 1
+        self.coin_add = 1  # random.uniform(0, 10)
 
 
 class CoinTwo(Coin):
@@ -74,7 +74,7 @@ class Enemy(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
-    def update(self):
+    def update(self):  # счет/скорость
         global SCORE
         self.rect.move_ip(0, self.speed)
         if self.rect.y > HEIGHT:
@@ -106,7 +106,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.move_ip(self.speed, 0)
 
 
-def new_coin(arr):
+def new_coin(arr): # рандомные монеты
     return random.choice(arr)
 
 

@@ -1,11 +1,15 @@
 import random
 import time
 import pygame
+import psycopg2
+import os
+from dotenv import dotenv_values
 
-# Инициализация Pygame
+dotenv_variables = dotenv_values(".env")
+password = dotenv_variables["PASSWORD"]
+
+# основные параметры игры в виде размеров окна, цвета и тд.
 pygame.init()
-
-# Определение основных параметров игры: размеры окна и цвета
 WIDTH, HEIGHT = 760, 760
 HEAD_COLOR = (19, 213, 213)
 BOARD_COLOR = (246, 197, 124)
@@ -15,26 +19,24 @@ FOOD_FOR_FIVE_COLOR = (78, 229, 73)
 FOOD_FOR_TEN_COLOR = (83, 253, 202)
 FOOD_FOR_FIFTEEN_COLOR = (243, 7, 243)
 SNAKE_COLOR = (19, 26, 215)
-
-# Загрузка аудиофайлов для звуков в игре
 BG_SOUND = 'sounds/background.mp3'
 FOOD_SOUND = pygame.mixer.Sound('sounds/food.mp3')
 GAME_OVER_SOUND = 'sounds/game_over.mp3'
 POISON_SOUND = pygame.mixer.Sound('sounds/poison.mp3')
 
-# Создание окна и установка заголовка
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 BLOCK_SIZE = 40
 pygame.display.set_caption('Snake v0')
 
-# Класс для определения точки с координатами x и y
+
+# класс точки, которая имеет х и у
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
-# Класс для объектов, которые можно съесть (еда и яд)
+
 class EatebleObjects:
     def __init__(self, x, y, color):
         self.location = Point(x, y)
@@ -49,7 +51,6 @@ class EatebleObjects:
         return self.location.y
 
     def update(self):
-        # Отображение объекта на экране
         pygame.draw.rect(
             SCREEN,
             self.color,
@@ -61,29 +62,34 @@ class EatebleObjects:
             )
         )
 
-# Класс для разных видов еды с различными очками за съедение
+
+# класс еды. которая имеет функции для координат и функция для создания клетки
 class FoodForFive(EatebleObjects):
     score_add = 5
+
 
 class FoodForTen(EatebleObjects):
     score_add = 10
 
+
 class FoodForFifteen(EatebleObjects):
     score_add = 15
+
 
 class Poison(EatebleObjects):
     score_add = -10
 
-# Класс для змейки
+
+# класс змейки, которая имеет функции отрисовки тела, функции движения, функции поедания еды и функцию, проверяющая
+# на столкновение со своим телеом
 class Snake:
     def __init__(self):
-        # Начальная точка змейки
         self.points = [
             Point(WIDTH // BLOCK_SIZE // 2, HEIGHT // BLOCK_SIZE // 2),
         ]
 
     def update(self):
-        # Обновление отображения змейки на экране
+
         head = self.points[0]
 
         pygame.draw.rect(
@@ -109,7 +115,6 @@ class Snake:
             )
 
     def move(self, dx, dy):
-        # Движение змейки
         for idx in range(len(self.points) - 1, 0, -1):
             self.points[idx].x = self.points[idx - 1].x
             self.points[idx].y = self.points[idx - 1].y
@@ -117,7 +122,6 @@ class Snake:
         self.points[0].x += dx
         self.points[0].y += dy
 
-        # Проверка на выход за границы поля
         head = self.points[0]
         if head.x >= WIDTH // BLOCK_SIZE or head.x < 0:
             return False
@@ -127,7 +131,6 @@ class Snake:
             return True
 
     def check_collision(self, eateble):
-        # Проверка на столкновение с объектами, которые можно съесть
         if self.points[0].x != eateble.x:
             return False
         if self.points[0].y != eateble.y:
@@ -135,27 +138,29 @@ class Snake:
         return True
 
     def touch_snake(self):
-        # Проверка на столкновение с собственным телом
         head = self.points[0]
         for item in self.points[1:]:
             if item.x == head.x and item.y == head.y:
                 return False
         return True
 
-# Функция для отрисовки сетки игрового поля
+
+# функция отрисовки поля
 def draw_grid():
     for x in range(0, WIDTH, BLOCK_SIZE):
         pygame.draw.line(SCREEN, BLACK, (x, 0), (x, HEIGHT), width=1)
     for y in range(0, HEIGHT, BLOCK_SIZE):
         pygame.draw.line(SCREEN, BLACK, (0, y), (WIDTH, y), width=1)
 
-# Функция для отображения текущего счета
+
+# функция для показа очков, которые получает игрок во время игры
 def show_score(score):
     my_font = pygame.font.SysFont('times new roman', 25)
     game_over_surface = my_font.render(f'Your Score is : {score}', True, BLACK)
     SCREEN.blit(game_over_surface, (0, 0))
 
-# Функция для завершения игры
+
+# функция поражения(косание края поля или тела змейки)
 def game_over(score):
     pygame.mixer.music.load(GAME_OVER_SOUND)
     pygame.mixer.music.play()
@@ -166,9 +171,38 @@ def game_over(score):
     SCREEN.blit(game_over_surface, game_over_rect)
     pygame.display.update()
     time.sleep(2)
+    adding_user(name, score)
     pygame.quit()
 
-# Главная функция игры
+
+def adding_user(name, score):
+    conn = psycopg2.connect(
+        host="localhost",
+        dbname="Snake_players",
+        user="postgres",
+        password=password,
+        port=5432
+    )
+    command1 = """SELECT level FROM users WHERE name = %s;"""
+    command2 = """INSERT INTO users (name, level)
+            VALUES (%s, %s);"""
+    command3 = """INSERT INTO users_score (name, score)
+                VALUES (%s, %s);"""
+    conn.autocommit = True
+    cursor = conn.cursor()
+    cursor.execute(command1, (name,))
+    level = cursor.fetchone()
+    if level:
+        print(f"Welcome back, {name}! Your current level is {level[0]}.")
+    else:
+        cursor.execute(command2, (name, 1))
+    cursor.execute(command3, (name, score))
+    cursor.close()
+    conn.close()
+
+
+# главная фунция игры, в которой реализовано направления движения змейки,
+# увелечение змейки и очков от съеденной еды, увелечение скорости
 def main():
     running = True
     snake = Snake()
@@ -176,7 +210,7 @@ def main():
         FoodForFive(5, 5, FOOD_FOR_FIVE_COLOR),
         FoodForTen(5, 5, FOOD_FOR_TEN_COLOR),
         FoodForFifteen(5, 5, FOOD_FOR_FIFTEEN_COLOR)
-            ]
+    ]
     food = random.choices(foods, weights=[10, 5, 1])[0]
     poison = Poison(6, 8, POISON_COLOR)
     dx, dy = 0, 0
@@ -191,6 +225,7 @@ def main():
     food_timer = 15000
 
     while running:
+
         SCREEN.fill(BOARD_COLOR)
 
         for event in pygame.event.get():
@@ -203,6 +238,8 @@ def main():
                     change_to = 'LEFT'
                 if event.key == pygame.K_RIGHT:
                     change_to = 'RIGHT'
+                if event.key == pygame.K_ESCAPE:  # Pause on pressing ESC key
+                    pause()
 
         if change_to == 'UP' and direction != 'DOWN':
             direction = 'UP'
@@ -222,7 +259,7 @@ def main():
         if direction == 'RIGHT':
             dx, dy = +1, 0
 
-        if snake.move(dx, dy):  # сталкивание
+        if snake.move(dx, dy):
             pass
         else:
             game_over(score)
@@ -235,7 +272,7 @@ def main():
         if len(snake.points) == 1 and snake.check_collision(poison):
             game_over(score)
 
-        if snake.check_collision(food):  # счетчик еды
+        if snake.check_collision(food):
             FOOD_SOUND.play()
             snake.points.append(Point(food.x, food.y))
             food.location.x = random.randint(0, WIDTH // BLOCK_SIZE - 1)
@@ -266,7 +303,7 @@ def main():
         draw_grid()
         show_score(score)
         pygame.display.flip()
-        # скорость игры в зависимосттти от счетчика
+
         if score == 50:
             fps = 7
         elif score == 100:
@@ -280,5 +317,22 @@ def main():
 
         clock.tick(fps)
 
+
+def pause():
+    paused = True
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # Resume on pressing ESC key again
+                    paused = False
+                    break
+                elif event.key == pygame.K_RETURN:  # Save state and score to DB on pressing Enter
+                    adding_user(name, score)
+        pygame.time.delay(100)  # To not consume too much CPU
+
+
 if __name__ == '__main__':
-    main()
+    name = str(input("Enter your name: "))
+    if name:
+        time.sleep(2)
+        main()

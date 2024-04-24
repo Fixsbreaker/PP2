@@ -7,7 +7,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-screen = pygame.display.set_mode((500, 500))
+screen = pygame.display.set_mode((1000, 1000))
 screen.fill((255, 255, 255))
 font = pygame.font.SysFont("Verdana", 15)
 current_color = BLACK
@@ -43,6 +43,11 @@ def drawequilateral_triangle(screen, x, y):
 def drawdiamond(screen, x, y):
     pygame.draw.polygon(screen, current_color, ((x, y), (x + 30, y - 50), (x + 60, y),  (x + 30, y + 50)))
 
+# эллипс
+def draw_ellipse(screen, x, y):
+    pygame.draw.ellipse(screen, current_color, (x, y), (x + 20, y + 20), (x + 60, y), (x + 60, y))
+
+
 # Главная функция игры, в которой реализовано изменение цвета, считывание координатов мышки
 isPressed = False
 running = True
@@ -54,13 +59,15 @@ while running:
     elif current_shape == "rectangle":
         sample_text += ", Rectangle - t"
     elif current_shape == "square":
-        sample_text += ", Square - k"
+        sample_text += ", Square - m"
     elif current_shape == "triangle":
         sample_text += ", Triangle - y"
     elif current_shape == "equilateral_triangle":
         sample_text += ", Equilateral Triangle - j"
     elif current_shape == "diamond":
         sample_text += ", Diamond - v"
+    elif current_shape == "ellipse":
+        sample_text += ", Ellipse - d"
     text = font.render(sample_text, True, (0, 0, 0))
     screen.blit(text, (0, 0))
     pressed = pygame.key.get_pressed()
@@ -75,6 +82,8 @@ while running:
     if pressed[pygame.K_e]:
         current_color = WHITE
     if pressed[pygame.K_k]:
+        current_shape = "circle"
+    if pressed[pygame.K_m]:
         current_shape = "square"
     if pressed[pygame.K_t]:
         current_shape = "rectangle"
@@ -84,6 +93,8 @@ while running:
         current_shape = "equilateral_triangle"
     if pressed[pygame.K_v]:
         current_shape = "diamond"
+    if pressed[pygame.K_d]:
+        current_shape = "ellipse"
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -105,6 +116,8 @@ while running:
                 drawequilateral_triangle(screen, x, y)
             elif current_shape == "diamond":
                 drawdiamond(screen, x, y)
+            elif current_shape == "ellipse":
+                draw_ellipse(screen, x, y)
         elif event.type == pygame.MOUSEBUTTONUP:
             isPressed = False
 
