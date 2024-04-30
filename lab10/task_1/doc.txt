@@ -1,0 +1,31 @@
+psql -f demo.sql -U postgres  - one of the day to create a database by term
+CREATE DATABASE __name__; - second way to do that
+INSERT INTO name-table [( atribut ... )]
+  VALUES ( vallue, ... );
+
+for ex:
+CREATE DATABASE aircrafts (
+    aircraft_code char( 3 ) NOT NULL,
+    model text NOT NULL,
+    range integer NOT NULL
+    PRIMARY_KEY ( aircraft_code )
+);
+
+to add some data
+INSERT INTO aircrafts (aircraft_code, model, range)
+VALUES ('SU9', 'Sukhoi SuperJet-100', 3000);
+
+to choose 
+SELECT name...
+  FROM table_name;
+for ex:
+SELECT * FROM aircrafts; - all data
+
+sort
+SELECT model, aircraft_code, range
+  FROM aircrafts
+  ORDER BY model;
+
+SELECT model, aircraft_code, range
+  FROM aircrafts
+  WHERE range >= 4000 AND range <= 6000;
